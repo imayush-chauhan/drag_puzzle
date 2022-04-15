@@ -1,9 +1,7 @@
 import 'dart:async';
-
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:drag_puzzle/screens/drag_puzzle.dart';
 import 'package:flutter/material.dart';
-
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -29,42 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     });
   }
-
-  // getHighScore() async {
-  //   var box = await Hive.openBox('puzzle');
-  //   if (box.get('hp') != null && box.get('tp') != null) {
-  //     setState(() {
-  //       Data.highScoreInPokemon = box.get('hp');
-  //       Data.timeInPokemon = box.get('tp');
-  //     });
-  //   }
-  //   if (box.get('he') != null && box.get('te') != null) {
-  //     setState(() {
-  //       Data.highScoreInPokemon = box.get('he');
-  //       Data.timeInPokemon = box.get('te');
-  //     });
-  //   }
-  //   if (box.get('hn') != null && box.get('tn') != null) {
-  //     setState(() {
-  //       Data.highScoreInPokemon = box.get('hn');
-  //       Data.timeInPokemon = box.get('tn');
-  //     });
-  //   }
-  // }
-
-  // snackBar(String s) {
-  //   _scaffoldKey.currentState!.showSnackBar(SnackBar(
-  //       duration: Duration(milliseconds: 2000),
-  //       backgroundColor: Colors.white,
-  //       padding: EdgeInsets.only(left: 25),
-  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-  //       content: Text(
-  //         s,
-  //         style: TextStyle(
-  //             color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600),
-  //       ),
-  //       behavior: SnackBarBehavior.floating));
-  // }
 
   @override
   void dispose() {
@@ -176,179 +138,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Container(),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.end,
-              //   crossAxisAlignment: CrossAxisAlignment.center,
-              //   children: [
-              //     IconButton(
-              //       icon: Icon(Icons.help),
-              //       iconSize: 26,
-              //       color: Colors.white,
-              //       onPressed: () {
-              //         // Navigator.push(context, MaterialPageRoute(builder: (context){
-              //         //   return Help();
-              //         // }));
-              //       },
-              //     ),
-              //     IconButton(
-              //       icon: Icon(Icons.star),
-              //       iconSize: 26,
-              //       color: Colors.white,
-              //       onPressed: () {
-              //         // rate();
-              //       },
-              //     ),
-              //     IconButton(
-              //       icon: Icon(Icons.share),
-              //       iconSize: 25,
-              //       color: Colors.white,
-              //       onPressed: () {
-              //         // share();
-              //       },
-              //     ),
-              //     IconButton(
-              //       icon: Icon(Icons.settings),
-              //       iconSize: 25,
-              //       color: Colors.white,
-              //       onPressed: () {
-              //         // Navigator.push(context, MaterialPageRoute(builder: (context) {
-              //         //   return Setting();
-              //         // },));
-              //       },
-              //     ),
-              //   ],
-              // ),
             ],
           ),
         ),
-        // child: Stack(
-        //   alignment: Alignment.center,
-        //   children: [
-        //     Column(
-        //       mainAxisAlignment: MainAxisAlignment.center,
-        //       crossAxisAlignment: CrossAxisAlignment.center,
-        //       children: [
-        //         Container(
-        //           height: MediaQuery.of(context).size.height*0.2,
-        //           width: MediaQuery.of(context).size.width*0.75,
-        //           child: Card(
-        //             margin: EdgeInsets.all(0),
-        //             color: Colors.white,
-        //             shape: RoundedRectangleBorder(
-        //               borderRadius: BorderRadius.circular(25),
-        //             ),
-        //             elevation: 10,
-        //             child: Center(
-        //               child: AnimatedTextKit(
-        //                 animatedTexts: [
-        //                   WavyAnimatedText("Tap & Tap",
-        //                       speed: Duration(milliseconds: 450),
-        //                       textStyle: GoogleFonts.lato(
-        //                         fontSize: MediaQuery.of(context).size.width*0.078,
-        //                         fontWeight: FontWeight.w600,
-        //                         color: Color(0xffDD2A7B),
-        //                       )),
-        //                 ],
-        //                 repeatForever: true,
-        //                 isRepeatingAnimation: true,
-        //               ),
-        //             ),
-        //           ),
-        //         ),
-        //         GestureDetector(
-        //           onTapDown: (value){
-        //             setState(() {
-        //               newGame = true;
-        //             });
-        //           },
-        //
-        //           onTapUp: (value){
-        //             setState(() {
-        //               newGame = false;
-        //               Navigator.push(context, MaterialPageRoute(builder: (context) {
-        //                 return Play();
-        //               },));
-        //             });
-        //           },
-        //
-        //           child: AnimatedContainer(
-        //             duration: Duration(milliseconds: 200),
-        //             curve: Curves.bounceInOut,
-        //             height: newGame == false ? 65 : 60,
-        //             width: newGame == false ? 200 : 185,
-        //             child: Card(
-        //               margin: EdgeInsets.all(0),
-        //               color: Colors.white,
-        //               shape: RoundedRectangleBorder(
-        //                 borderRadius: BorderRadius.circular(20),
-        //               ),
-        //               elevation: 10,
-        //               child: Center(
-        //                   child: Text("Levels",
-        //                     style: TextStyle(
-        //                       fontSize: 20,
-        //                       fontFamily: "Source",
-        //                       fontWeight: FontWeight.w600,
-        //                       color: Color(0xffDD2A7B),
-        //                     ),)
-        //               ),
-        //             ),
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //     Positioned(
-        //       bottom: 5,
-        //       right: 0,
-        //       child: Row(
-        //         mainAxisAlignment: MainAxisAlignment.start,
-        //         crossAxisAlignment: CrossAxisAlignment.center,
-        //         children: [
-        //
-        //           IconButton(
-        //             icon: Icon(Icons.help),
-        //             iconSize: 26,
-        //             color: Colors.white,
-        //             onPressed: (){
-        //               // Navigator.push(context, MaterialPageRoute(builder: (context){
-        //               //   return Help();
-        //               // }));
-        //             },
-        //           ),
-        //
-        //           IconButton(
-        //             icon: Icon(Icons.star),
-        //             iconSize: 26,
-        //             color: Colors.white,
-        //             onPressed: (){
-        //               // rate();
-        //             },
-        //           ),
-        //
-        //           IconButton(
-        //             icon: Icon(Icons.share),
-        //             iconSize: 25,
-        //             color: Colors.white,
-        //             onPressed: (){
-        //               // share();
-        //             },
-        //           ),
-        //
-        //           IconButton(
-        //             icon: Icon(Icons.settings),
-        //             iconSize: 25,
-        //             color: Colors.white,
-        //             onPressed: (){
-        //               // Navigator.push(context, MaterialPageRoute(builder: (context) {
-        //               //   return Setting();
-        //               // },));
-        //             },
-        //           ),
-        //         ],
-        //       ),
-        //     )
-        //   ],
-        // ),
       ),
     );
   }

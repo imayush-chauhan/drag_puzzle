@@ -15,7 +15,9 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
   late AnimationController _controller;
 
+  int length = 9;
   late Timer timer;
+  late Timer timer2;
 
   @override
   void initState() {
@@ -38,17 +40,20 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     //   //   });
     //   // }
     // });
+
     Future.delayed(const Duration(milliseconds: 15), () {
       setState(() {
         change = true;
       });
     });
+
     timer = Timer.periodic(durationShort, (timer) {
       setState(() {
         change = !change;
       });
     });
-    timer = Timer.periodic(durationShort2, (timer) {
+
+    timer2 = Timer.periodic(durationShort2, (timer) {
       setState(() {
         move();
       });
@@ -69,31 +74,24 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
   int selected = -1;
 
-  List n = [
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-  ];
+  List n = [];
 
   List y = [];
   List m = [];
 
-
-
-
   give(BuildContext context){
-    for(int i = 0; i <= 8; i++){
+    location.clear();
+    for(int i = 0; i < length; i++){
       setState(() {
         y.add(false);
+        n.add(-1);
         m.add(false);
-        location[i.toString()][0] = r.nextInt((MediaQuery.of(context).size.width*0.8).toInt()).toDouble();
-        location[i.toString()][1] = r.nextInt((MediaQuery.of(context).size.height*0.225).toInt() + 100).toDouble();
+        location.addAll({
+          i.toString(): [
+            r.nextInt((MediaQuery.of(context).size.width*0.8).toInt()).toDouble(),
+            r.nextInt((MediaQuery.of(context).size.height*0.225).toInt() + 100).toDouble()
+          ],
+        });
       });
     }
     setState(() {
@@ -102,54 +100,19 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   }
 
   move(){
-    for(int i = 0; i <= 8; i++){
-      location[i.toString()][0] = r.nextInt((MediaQuery.of(context).size.width*0.8).toInt()).toDouble();
-      location[i.toString()][1] = r.nextInt((MediaQuery.of(context).size.height*0.225).toInt() + 100).toDouble();
+    location.clear();
+    for(int i = 0; i < length; i++){
+      location.addAll({
+        i.toString(): [
+          r.nextInt((MediaQuery.of(context).size.width*0.8).toInt()).toDouble(),
+          r.nextInt((MediaQuery.of(context).size.height*0.225).toInt() + 100).toDouble()
+        ],
+      });
       setState(() {});
     }
   }
 
-  Map location = {
-    "0" : <double>[
-      100,
-      100,
-      -1,
-    ],
-    "1": <double>[
-      150.0,
-      100.0,
-      -1,
-    ],
-    "2": <double>[
-      100,
-      100,
-      -1,
-    ],
-    "3": <double>[
-      100,
-      180,
-    ],
-    "4": <double>[
-      130,
-      140,
-    ],
-    "5": <double>[
-      90,
-      150,
-    ],
-    "6": <double>[
-      120,
-      190,
-    ],
-    "7": <double>[
-      130,
-      80,
-    ],
-    "8": <double>[
-      80,
-      150,
-    ],
-  };
+  Map location = {};
 
   @override
   Widget build(BuildContext context) {
@@ -316,7 +279,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                 // height: mediaQH*0.5,
                 width: mediaQW*0.9,
                 child: GridView.builder(
-                  itemCount: 9,
+                  itemCount: length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     crossAxisSpacing: 4,
@@ -368,6 +331,18 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                           n[index] = -1;
                         });
                       },
+                      // onPanUpdate: (_){
+                      //   location[index.toString()][0] = _.delta.dx;
+                      //   location[index.toString()][1] = _.delta.dy;
+                      //   setState(() {});
+                      // },
+
+                      onPanCancel: (){
+                        setState(() {
+                          m[n[index]] = false;
+                          n[index] = -1;
+                        });
+                      },
                       child: Container(
                         height: mediaQW*0.28,
                         width: mediaQW*0.28,
@@ -383,82 +358,22 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
               ),
             ),
 
-            AnimatedPositioned(
-              duration: durationShort2,
-              curve: Curves.easeInOut,
-              left: location["0"][0],
-              top: location["0"][1],
-              child: item(mediaQW, 0),
-            ),
-
-            AnimatedPositioned(
-              duration: durationShort2,
-              curve: Curves.easeInOut,
-              left: location["1"][0],
-              top: location["1"][1],
-              child: item(mediaQW, 1),
-            ),
-
-            AnimatedPositioned(
-              duration: durationShort2,
-              curve: Curves.easeInOut,
-              left: location["2"][0],
-              top: location["2"][1],
-              child: item(mediaQW, 2),
-            ),
-
-            AnimatedPositioned(
-              duration: durationShort2,
-              curve: Curves.easeInOut,
-              left: location["3"][0],
-              top: location["3"][1],
-              child: item(mediaQW, 3),
-            ),
-
-            AnimatedPositioned(
-              duration: durationShort2,
-              curve: Curves.easeInOut,
-              left: location["4"][0],
-              top: location["4"][1],
-              child: item(mediaQW, 4),
-            ),
-
-            AnimatedPositioned(
-              duration: durationShort2,
-              curve: Curves.easeInOut,
-              left: location["5"][0],
-              top: location["5"][1],
-              child: item(mediaQW, 5),
-            ),
-
-            AnimatedPositioned(
-              duration: durationShort2,
-              curve: Curves.easeInOut,
-              left: location["6"][0],
-              top: location["6"][1],
-              child: item(mediaQW, 6),
-            ),
-
-            AnimatedPositioned(
-              duration: durationShort2,
-              curve: Curves.easeInOut,
-              left: location["7"][0],
-              top: location["7"][1],
-              child: item(mediaQW, 7),
-            ),
-
-            AnimatedPositioned(
-              duration: durationShort2,
-              curve: Curves.easeInOut,
-              left: location["8"][0],
-              top: location["8"][1],
-              child: item(mediaQW, 8),
-            ),
-
+            for(int i = 0; i < length; i++)
+              position(mediaQH, mediaQW, location[i.toString()][0], location[i.toString()][1], i)
 
           ],
         ),
       ),
+    );
+  }
+
+  position(double mediaQH, double mediaQW, double left, double top, int inx){
+    return AnimatedPositioned(
+      duration: durationShort2,
+      curve: Curves.easeInOut,
+      left: left,
+      top: top,
+      child: item(mediaQW, inx),
     );
   }
 
