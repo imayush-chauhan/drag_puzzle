@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class DragAndDrop extends StatefulWidget {
@@ -12,14 +13,19 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   Duration durationLong = const Duration(seconds: 60);
   Duration durationShort = const Duration(seconds: 30);
   Duration durationShort2 = const Duration(seconds: 6);
+  Duration durationGap = const Duration(milliseconds: 1200);
 
   late AnimationController _controller;
+
+  bool gap = false;
+  bool isLoading = true;
 
   int length = 9;
   int side = 3;
   int secondDragStart = -1;
   late Timer timer;
   late Timer timer2;
+  late Timer timer3;
 
   @override
   void initState() {
@@ -43,6 +49,12 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     //   // }
     // });
 
+    timer3 = Timer.periodic(durationGap, (timer) {
+      setState(() {
+        gap = !gap;
+      });
+    });
+
     Future.delayed(const Duration(milliseconds: 15), () {
       setState(() {
         change = true;
@@ -55,12 +67,42 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
       });
     });
 
-    timer2 = Timer.periodic(durationShort2, (timer) {
-      setState(() {
-        move();
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      move();
+      timer2 = Timer.periodic(durationShort2, (timer) {
+        setState(() {
+          move();
+        });
       });
     });
+
+    getUserData();
   }
+
+  List data = [];
+
+  getUserData() {
+    FirebaseFirestore.instance
+        .collection("drag_data")
+        .doc("1")
+        .get()
+        .then((value) {
+          setState(() {
+            data = value.get("goku");
+            print("Success!!!");
+            print(data);
+          });
+          Future.delayed(const Duration(seconds: 3), () {
+            setState(() {
+              isLoading = false;
+              timer3.cancel();
+            });
+          });
+    }).onError((error, stackTrace) {
+      print("Error: $error");
+    });
+  }
+
 
   bool change = false;
 
@@ -68,6 +110,8 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   void dispose() {
     super.dispose();
     timer.cancel();
+    timer2.cancel();
+    timer3.cancel();
     _controller.dispose();
   }
 
@@ -125,8 +169,10 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
         height: mediaQH,
         width: mediaQW,
         color: Colors.white,
-        child: Stack(
+        child:
+        Stack(
           children: [
+
             Container(
               height: mediaQH,
               width: mediaQW,
@@ -268,7 +314,86 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
               ),
             ),
 
+            isLoading == true ?
+            Center(
+              child: Container(
+                width: mediaQW,
+                height: mediaQW*0.125,
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    AnimatedContainer(
+                      duration: durationGap,
+                      curve: Curves.easeInOut,
+                      width: gap == false ? mediaQW*0.05 : mediaQW*0.125,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                      ),
+                    ),
+                    AnimatedContainer(
+                      duration: Duration(milliseconds: 1200),
+                      curve: Curves.easeInOut,
+                      width: gap == false ? mediaQW*0.07 : mediaQW*0.35,
+                      height: 1,
+                    ),
+                    AnimatedContainer(
+                      duration: durationGap,
+                      curve: Curves.easeInOut,
+                      width: gap == false ? mediaQW*0.05 : mediaQW*0.125,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ) : Text(""),
 
+            isLoading == true ?
+            Center(
+              child: Container(
+                width: mediaQW*0.125,
+                height: mediaQH,
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    AnimatedContainer(
+                      duration: durationGap,
+                      curve: Curves.easeInOut,
+                      height: gap == false ? mediaQW*0.125 : mediaQW*0.05,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                      ),
+                    ),
+                    AnimatedContainer(
+                      duration: Duration(milliseconds: 1200),
+                      curve: Curves.easeInOut,
+                      height: gap == false ? mediaQW*0.07 : mediaQW*0.4,
+                      width: 1,
+                    ),
+                    AnimatedContainer(
+                      duration: durationGap,
+                      curve: Curves.easeInOut,
+                      height: gap == false ? mediaQW*0.125 : mediaQW*0.05,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ) : Text(""),
+
+
+            isLoading == false ?
             Align(
               alignment: Alignment.bottomCenter*0.9,
               child: Container(
@@ -347,20 +472,21 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                         height: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                         width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                         color: Colors.white,
-                        child: Image.asset("assets/images/${n[index]}.png",fit: BoxFit.contain,),
+                        child: Image.network(data[n[index]],fit: BoxFit.contain,),
+                        // child: Image.asset("assets/images/${n[index]}.png",fit: BoxFit.contain,),
                       ),
                       child: Container(
                         height: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                         width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                         color: Colors.white,
-                        child:
-                        Image.asset("assets/images/${n[index]}.png",fit: BoxFit.contain,),
+                        child: Image.network(data[n[index]],fit: BoxFit.contain,),
+                        // child: Image.asset("assets/images/${n[index]}.png",fit: BoxFit.contain,),
                       ),
                     ) ;
                   },
                 ),
               ),
-            ),
+            ) : Text(""),
 
             for(int i = 0; i < length; i++)
               position(mediaQH, mediaQW, location[i.toString()][0], location[i.toString()][1], i)
@@ -372,13 +498,14 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   }
 
   position(double mediaQH, double mediaQW, double left, double top, int inx){
-    return AnimatedPositioned(
+    return isLoading == false ?
+    AnimatedPositioned(
       duration: durationShort2,
       curve: Curves.easeInOut,
       left: left,
       top: top,
       child: item(mediaQW, inx),
-    );
+    ) : Text("");
   }
 
   item(double mediaQW,int inx){
@@ -403,11 +530,12 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
       child: m[inx] == false ? Container(
         height: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
         width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
-        color: Colors.transparent,
-        child: Image.asset(
-          "assets/images/$inx.png",
-          fit: BoxFit.contain,
-        ),
+        color: Colors.white,
+        child: Image.network(data[inx],fit: BoxFit.contain,),
+        // child: Image.asset(
+        //   "assets/images/$inx.png",
+        //   fit: BoxFit.contain,
+        // ),
       ) : Container(),
       feedback: ClipRRect(
         borderRadius: BorderRadius.circular(10),
@@ -415,9 +543,10 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
           height: side <= 3 ? mediaQW*0.3 : mediaQW*0.22,
           width: side <= 3 ? mediaQW*0.3 : mediaQW*0.22,
           decoration: BoxDecoration(
-            color: Colors.transparent,
+            color: Colors.white,
           ),
-          child: Image.asset("assets/images/$inx.png",fit: BoxFit.contain,),
+          child: Image.network(data[inx],fit: BoxFit.contain,),
+          // child: Image.asset("assets/images/$inx.png",fit: BoxFit.contain,),
         ),
       ),
     );
