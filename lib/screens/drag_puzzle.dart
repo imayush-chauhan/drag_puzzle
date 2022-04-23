@@ -16,6 +16,8 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   late AnimationController _controller;
 
   int length = 9;
+  int side = 3;
+  int secondDragStart = -1;
   late Timer timer;
   late Timer timer2;
 
@@ -75,15 +77,12 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   int selected = -1;
 
   List n = [];
-
-  List y = [];
   List m = [];
 
   give(BuildContext context){
     location.clear();
     for(int i = 0; i < length; i++){
       setState(() {
-        y.add(false);
         n.add(-1);
         m.add(false);
         location.addAll({
@@ -156,9 +155,6 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
             ),
 
             starPosition(mediaQH, mediaQW),
-            // hmm == true ?
-            // starPosition(mediaQH, mediaQW) :
-            // Container(),
 
             Padding(
               padding: EdgeInsets.only(top: mediaQH*0.075),
@@ -281,7 +277,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                 child: GridView.builder(
                   itemCount: length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
+                    crossAxisCount: side,
                     crossAxisSpacing: 4,
                     mainAxisSpacing: 4,
                   ),
@@ -310,46 +306,54 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
                         return can.length > 0 ?
                         Container(
-                          height: mediaQW*0.28,
-                          width: mediaQW*0.28,
+                          height: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
+                          width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                           color: Colors.transparent,
                         ) :
                         Container(
-                          height: mediaQW*0.28,
-                          width: mediaQW*0.28,
+                          height: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
+                          width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.25),
                           ),
                         );
                       },
                     )  :
-                    // : selected != -1 ?
-                    GestureDetector(
-                      onTap: (){
+                    Draggable<bool>(
+                      data: m[index],
+                      onDragStarted: (){
                         setState(() {
-                          m[n[index]] = false;
+                          m[n[index]] = true;
+                          secondDragStart = n[index];
                           n[index] = -1;
                         });
                       },
-                      // onPanUpdate: (_){
-                      //   location[index.toString()][0] = _.delta.dx;
-                      //   location[index.toString()][1] = _.delta.dy;
-                      //   setState(() {});
-                      // },
+                      onDragCompleted: (){
+                        print("drag complete");
+                        setState(() {
+                          selected = secondDragStart;
+                          n[index] = -1;
+                          secondDragStart = -1;
+                        });
 
-                      onPanCancel: (){
+                      },
+                      onDraggableCanceled: (_,i){
                         setState(() {
-                          m[n[index]] = false;
-                          n[index] = -1;
+                          m[secondDragStart] = false;
+                          secondDragStart = -1;
                         });
                       },
+                      feedback: Container(
+                        height: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
+                        width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
+                        color: Colors.white,
+                        child: Image.asset("assets/images/${n[index]}.png",fit: BoxFit.contain,),
+                      ),
                       child: Container(
-                        height: mediaQW*0.28,
-                        width: mediaQW*0.28,
+                        height: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
+                        width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                         color: Colors.white,
                         child:
-                        // selected == -1 ?
-                        //     Text("") :
                         Image.asset("assets/images/${n[index]}.png",fit: BoxFit.contain,),
                       ),
                     ) ;
@@ -379,7 +383,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
   item(double mediaQW,int inx){
     return Draggable<bool>(
-      data: y[inx],
+      data: m[inx],
       onDragStarted: (){
         setState(() {
           m[inx] = true;
@@ -397,8 +401,8 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
         });
       },
       child: m[inx] == false ? Container(
-        height: mediaQW*0.28,
-        width: mediaQW*0.28,
+        height: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
+        width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
         color: Colors.transparent,
         child: Image.asset(
           "assets/images/$inx.png",
@@ -408,8 +412,8 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
       feedback: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Container(
-          height: mediaQW*0.28,
-          width: mediaQW*0.28,
+          height: side <= 3 ? mediaQW*0.3 : mediaQW*0.22,
+          width: side <= 3 ? mediaQW*0.3 : mediaQW*0.22,
           decoration: BoxDecoration(
             color: Colors.transparent,
           ),
@@ -529,18 +533,15 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   }
 
   restart(){
-    // n.clear();
-    // y.clear();
-    // m.clear();
     for(int i = 0; i < 9; i++){
       setState(() {
         n[i] = -1;
-        y[i] = false;
         m[i] = false;
       });
     }
     setState(() {
       selected = -1;
+      secondDragStart = -1;
     });
   }
 
