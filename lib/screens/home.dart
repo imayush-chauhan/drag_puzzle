@@ -158,7 +158,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       newGame = false;
                       Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
-                          return DragAndDrop();
+                          return DragAndDrop(
+                            level: 6,
+                            length: 9,
+                            side: 3,
+                            time: 15,
+                          );
                         },
                       ));
                     });

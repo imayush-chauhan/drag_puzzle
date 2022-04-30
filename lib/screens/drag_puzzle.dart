@@ -4,6 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class DragAndDrop extends StatefulWidget {
+  final int level;
+  final int length;
+  final int side;
+  final int time;
+  DragAndDrop({required this.length,required this.side,required this.time,required this.level});
+
   @override
   _DragAndDropState createState() => _DragAndDropState();
 }
@@ -22,14 +28,20 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
   int length = 9;
   int side = 3;
+  int totalTime = 15;
+  int time = 0;
   int secondDragStart = -1;
   late Timer timer;
   late Timer timer2;
   late Timer timer3;
+  late Timer timer4;
 
   @override
   void initState() {
     super.initState();
+    length = widget.length;
+    side = widget.side;
+    totalTime = widget.time;
     _controller = AnimationController(
       duration: durationLong,
       vsync: this,
@@ -97,9 +109,23 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
               isLoading = false;
               timer3.cancel();
             });
+            remainingTime();
           });
     }).onError((error, stackTrace) {
       print("Error: $error");
+    });
+  }
+
+  remainingTime(){
+    timer4 = Timer.periodic(Duration(seconds: 1), (timer) {
+      if(time < totalTime){
+        setState(() {
+          time++;
+        });
+      }else{
+        showWinDialog("Lost lol");
+        timer4.cancel();
+      }
     });
   }
 
@@ -112,6 +138,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     timer.cancel();
     timer2.cancel();
     timer3.cancel();
+    timer4.cancel();
     _controller.dispose();
   }
 
@@ -407,6 +434,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                     mainAxisSpacing: 4,
                   ),
                   shrinkWrap: true,
+                  physics: BouncingScrollPhysics(),
                   itemBuilder: (context, index){
                     return n[index] == -1 ?
                     DragTarget<bool>(
@@ -489,7 +517,29 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
             ) : Text(""),
 
             for(int i = 0; i < length; i++)
-              position(mediaQH, mediaQW, location[i.toString()][0], location[i.toString()][1], i)
+              position(mediaQH, mediaQW, location[i.toString()][0], location[i.toString()][1], i),
+
+
+            Positioned(
+              bottom: 0,
+              child: Stack(
+                children: [
+                  Container(
+                    height: mediaQH*0.005,
+                    width: mediaQW,
+                    color: Colors.white,
+                  ),
+                  AnimatedContainer(
+                    duration: Duration(seconds: 1),
+                    curve: Curves.linear,
+                    height: mediaQH*0.005,
+                    width: (mediaQW/totalTime)*time,
+                    color: Colors.orange,
+                  ),
+                ],
+              ),
+            ),
+
 
           ],
         ),
@@ -530,8 +580,17 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
       child: m[inx] == false ? Container(
         height: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
         width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
-        color: Colors.white,
-        child: Image.network(data[inx],fit: BoxFit.contain,),
+        color: Colors.transparent,
+        child:
+        Image.network(data[inx],fit: BoxFit.contain,
+        loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loading){
+          if(loading == null){
+            return child;
+          }else{
+            return
+            Center(child: CircularProgressIndicator());
+          }
+        }),
         // child: Image.asset(
         //   "assets/images/$inx.png",
         //   fit: BoxFit.contain,
@@ -543,7 +602,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
           height: side <= 3 ? mediaQW*0.3 : mediaQW*0.22,
           width: side <= 3 ? mediaQW*0.3 : mediaQW*0.22,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Colors.transparent,
           ),
           child: Image.network(data[inx],fit: BoxFit.contain,),
           // child: Image.asset("assets/images/$inx.png",fit: BoxFit.contain,),
@@ -554,12 +613,12 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
   check(){
     int hmm = -1;
-    for(int i = 0; i < 9; i++){
+    for(int i = 0; i < length; i++){
       if(n[i] == i){
         hmm++;
       }
     }
-    if(hmm == 8){
+    if(hmm == length-1){
       print("success");
       showWinDialog("Congrats");
     }
@@ -662,16 +721,18 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   }
 
   restart(){
-    for(int i = 0; i < 9; i++){
+    for(int i = 0; i < length; i++){
       setState(() {
         n[i] = -1;
         m[i] = false;
       });
     }
     setState(() {
+      time = 0;
       selected = -1;
       secondDragStart = -1;
     });
+    remainingTime();
   }
 
   showWinDialog(String yo) {

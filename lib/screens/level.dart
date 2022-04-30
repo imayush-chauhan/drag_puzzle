@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:drag_puzzle/data/data.dart';
+import 'package:drag_puzzle/screens/drag_puzzle.dart';
 import 'package:flutter/material.dart';
 
 class Level extends StatefulWidget {
@@ -61,7 +62,7 @@ class _LevelState extends State<Level> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: mediaQW*0.02),
                 child: GridView.builder(
-                  itemCount: 15,
+                  itemCount: Data.level.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     mainAxisSpacing: mediaQH*0.05,
@@ -70,18 +71,30 @@ class _LevelState extends State<Level> {
                   ),
                   shrinkWrap: true,
                   itemBuilder: (context,index){
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(mediaQW*0.05),
+                    return GestureDetector(
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context) {
+                          return DragAndDrop(
+                            level: index + 1,
+                            length: Data.level[index][0],
+                            side: Data.level[index][1],
+                            time: Data.level[index][2],
+                          );
+                        },));
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(mediaQW*0.05),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text("Level ${index+1}",
+                        style: TextStyle(
+                          color: Color(0xffC850C0),
+                          fontSize: mediaQW*0.042,
+                          fontWeight: FontWeight.bold,
+                        ),),
                       ),
-                      alignment: Alignment.center,
-                      child: Text("Level ${index+1}",
-                      style: TextStyle(
-                        color: Color(0xffC850C0),
-                        fontSize: mediaQW*0.042,
-                        fontWeight: FontWeight.bold,
-                      ),),
                     );
                   },
                 ),
