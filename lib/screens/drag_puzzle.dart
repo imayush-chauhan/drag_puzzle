@@ -24,7 +24,17 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   late AnimationController _controller;
 
   bool gap = false;
-  bool isLoading = true;
+  // bool isLoading = true;
+
+  List countContent = [
+    "",
+    "3",
+    "2",
+    "1",
+    "GO",
+  ];
+
+  int count = 1;
 
   int length = 9;
   int side = 3;
@@ -63,7 +73,13 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
     timer3 = Timer.periodic(durationGap, (timer) {
       setState(() {
-        gap = !gap;
+        if(count < 4){
+          count++;
+        }else{
+          count = 0;
+          remainingTime();
+          timer3.cancel();
+        }
       });
     });
 
@@ -96,21 +112,21 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   getUserData() {
     FirebaseFirestore.instance
         .collection("drag_data")
-        .doc("1")
+        .doc(widget.level > 3 ? "1" : "2")
         .get()
         .then((value) {
           setState(() {
-            data = value.get("goku");
+            data = value.get(widget.level > 3 ? "goku" : "level_6");
             print("Success!!!");
             print(data);
           });
-          Future.delayed(const Duration(seconds: 3), () {
-            setState(() {
-              isLoading = false;
-              timer3.cancel();
-            });
-            remainingTime();
-          });
+          // Future.delayed(const Duration(seconds: 3), () {
+          //   // setState(() {
+          //   //   isLoading = false;
+          //   //   timer3.cancel();
+          //   // });
+          //   remainingTime();
+          // });
     }).onError((error, stackTrace) {
       print("Error: $error");
     });
@@ -123,7 +139,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
           time++;
         });
       }else{
-        showWinDialog("Lost lol");
+        showWinDialog("Lost lol", false);
         timer4.cancel();
       }
     });
@@ -137,7 +153,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     super.dispose();
     timer.cancel();
     timer2.cancel();
-    timer3.cancel();
+    // timer3.cancel();
     timer4.cancel();
     _controller.dispose();
   }
@@ -341,86 +357,83 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
               ),
             ),
 
-            isLoading == true ?
-            Center(
-              child: Container(
-                width: mediaQW,
-                height: mediaQW*0.125,
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    AnimatedContainer(
-                      duration: durationGap,
-                      curve: Curves.easeInOut,
-                      width: gap == false ? mediaQW*0.05 : mediaQW*0.125,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                      ),
-                    ),
-                    AnimatedContainer(
-                      duration: Duration(milliseconds: 1200),
-                      curve: Curves.easeInOut,
-                      width: gap == false ? mediaQW*0.07 : mediaQW*0.35,
-                      height: 1,
-                    ),
-                    AnimatedContainer(
-                      duration: durationGap,
-                      curve: Curves.easeInOut,
-                      width: gap == false ? mediaQW*0.05 : mediaQW*0.125,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ) : Text(""),
+            // Center(
+            //   child: Container(
+            //     width: mediaQW,
+            //     height: mediaQW*0.125,
+            //     alignment: Alignment.center,
+            //     child: Row(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       crossAxisAlignment: CrossAxisAlignment.center,
+            //       children: [
+            //         AnimatedContainer(
+            //           duration: durationGap,
+            //           curve: Curves.easeInOut,
+            //           width: gap == false ? mediaQW*0.05 : mediaQW*0.125,
+            //           decoration: BoxDecoration(
+            //             shape: BoxShape.circle,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //         AnimatedContainer(
+            //           duration: Duration(milliseconds: 1200),
+            //           curve: Curves.easeInOut,
+            //           width: gap == false ? mediaQW*0.07 : mediaQW*0.35,
+            //           height: 1,
+            //         ),
+            //         AnimatedContainer(
+            //           duration: durationGap,
+            //           curve: Curves.easeInOut,
+            //           width: gap == false ? mediaQW*0.05 : mediaQW*0.125,
+            //           decoration: BoxDecoration(
+            //             shape: BoxShape.circle,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
 
-            isLoading == true ?
-            Center(
-              child: Container(
-                width: mediaQW*0.125,
-                height: mediaQH,
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    AnimatedContainer(
-                      duration: durationGap,
-                      curve: Curves.easeInOut,
-                      height: gap == false ? mediaQW*0.125 : mediaQW*0.05,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                      ),
-                    ),
-                    AnimatedContainer(
-                      duration: Duration(milliseconds: 1200),
-                      curve: Curves.easeInOut,
-                      height: gap == false ? mediaQW*0.07 : mediaQW*0.4,
-                      width: 1,
-                    ),
-                    AnimatedContainer(
-                      duration: durationGap,
-                      curve: Curves.easeInOut,
-                      height: gap == false ? mediaQW*0.125 : mediaQW*0.05,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ) : Text(""),
+            // Center(
+            //   child: Container(
+            //     width: mediaQW*0.125,
+            //     height: mediaQH,
+            //     alignment: Alignment.center,
+            //     child: Column(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       crossAxisAlignment: CrossAxisAlignment.center,
+            //       children: [
+            //         AnimatedContainer(
+            //           duration: durationGap,
+            //           curve: Curves.easeInOut,
+            //           height: gap == false ? mediaQW*0.125 : mediaQW*0.05,
+            //           decoration: BoxDecoration(
+            //             shape: BoxShape.circle,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //         AnimatedContainer(
+            //           duration: Duration(milliseconds: 1200),
+            //           curve: Curves.easeInOut,
+            //           height: gap == false ? mediaQW*0.07 : mediaQW*0.4,
+            //           width: 1,
+            //         ),
+            //         AnimatedContainer(
+            //           duration: durationGap,
+            //           curve: Curves.easeInOut,
+            //           height: gap == false ? mediaQW*0.125 : mediaQW*0.05,
+            //           decoration: BoxDecoration(
+            //             shape: BoxShape.circle,
+            //             color: Colors.white,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
 
 
-            isLoading == false ?
             Align(
               alignment: Alignment.bottomCenter*0.9,
               child: Container(
@@ -514,7 +527,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                   },
                 ),
               ),
-            ) : Text(""),
+            ),
 
             for(int i = 0; i < length; i++)
               position(mediaQH, mediaQW, location[i.toString()][0], location[i.toString()][1], i),
@@ -540,6 +553,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
               ),
             ),
 
+            showCountDown(mediaQH, mediaQW),
 
           ],
         ),
@@ -548,14 +562,14 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   }
 
   position(double mediaQH, double mediaQW, double left, double top, int inx){
-    return isLoading == false ?
+    return
     AnimatedPositioned(
       duration: durationShort2,
       curve: Curves.easeInOut,
       left: left,
       top: top,
       child: item(mediaQW, inx),
-    ) : Text("");
+    );
   }
 
   item(double mediaQW,int inx){
@@ -581,16 +595,16 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
         height: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
         width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
         color: Colors.transparent,
-        child:
+        child: data.isNotEmpty ?
         Image.network(data[inx],fit: BoxFit.contain,
         loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loading){
           if(loading == null){
             return child;
           }else{
-            return
-            Center(child: CircularProgressIndicator());
+            return Text("");
+            // Center(child: CircularProgressIndicator());
           }
-        }),
+        }) : Container(),
         // child: Image.asset(
         //   "assets/images/$inx.png",
         //   fit: BoxFit.contain,
@@ -604,7 +618,8 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
           decoration: BoxDecoration(
             color: Colors.transparent,
           ),
-          child: Image.network(data[inx],fit: BoxFit.contain,),
+          child: data.isNotEmpty ?
+          Image.network(data[inx],fit: BoxFit.contain,) : Container(),
           // child: Image.asset("assets/images/$inx.png",fit: BoxFit.contain,),
         ),
       ),
@@ -620,7 +635,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     }
     if(hmm == length-1){
       print("success");
-      showWinDialog("Congrats");
+      showWinDialog("Congrats", true);
     }
   }
 
@@ -720,6 +735,55 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     );
   }
 
+
+  showCountDown(double mediaQH, double mediaQW){
+    return count > 0 ?
+    Container(
+      height: mediaQH,
+      width: mediaQW,
+      color: Colors.black.withOpacity(0.3),
+      alignment: Alignment.center,
+      child: Text(countContent[count],
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: mediaQW*0.2,
+        fontWeight: FontWeight.w600,
+      ),),
+    ) : Container();
+    //     : Padding(
+    //   padding: const EdgeInsets.only(top: 100),
+    //   child: Row(
+    //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    //     crossAxisAlignment: CrossAxisAlignment.center,
+    //     children: [
+    //
+    //       GestureDetector(
+    //         onTap: (){
+    //           showWinDialog("Congrats", true);
+    //         },
+    //         child: Container(
+    //           height: 50,
+    //           width: 100,
+    //           color: Colors.green,
+    //         ),
+    //       ),
+    //
+    //       GestureDetector(
+    //         onTap: (){
+    //           showWinDialog("Lost lol", false);
+    //         },
+    //         child: Container(
+    //           height: 50,
+    //           width: 100,
+    //           color: Colors.red,
+    //         ),
+    //       ),
+    //
+    //     ],
+    //   ),
+    // );
+  }
+
   restart(){
     for(int i = 0; i < length; i++){
       setState(() {
@@ -735,7 +799,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     remainingTime();
   }
 
-  showWinDialog(String yo) {
+  showWinDialog(String yo, bool win) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -750,7 +814,10 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
             ),
             actions: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  win == true ?
                   GestureDetector(
                     onTap: () {
                       Navigator.of(context).pop();
@@ -765,17 +832,14 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.14,
-                  ),
+                  ) :
                   MaterialButton(
                     elevation: 10,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                     color: Colors.red,
-                    minWidth: 120,
+                    minWidth: MediaQuery.of(context).size.width*0.3,
                     height: 50,
                     onPressed: () {
                       restart();
@@ -783,6 +847,53 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                     },
                     child: Text(
                       'Restart',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+
+                  win == true ?
+                  MaterialButton(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    color: Colors.red,
+                    minWidth: MediaQuery.of(context).size.width*0.3,
+                    height: 50,
+                    onPressed: () {
+                      restart();
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'Restart',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ) :
+                  MaterialButton(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    color: Colors.red,
+                    minWidth: MediaQuery.of(context).size.width*0.25,
+                    height: 50,
+                    onPressed: () {
+                      setState(() {
+                        totalTime = totalTime + 5;
+                        remainingTime();
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      '+5 sec',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
