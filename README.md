@@ -1,6 +1,9 @@
-# drag_puzzle
+# Drag Puzzle
 
 A new Flutter project.
+
+![](assets/images/ss_1.jpg)
+![](assets/images/ss_2.jpg)
 
 ## Getting Started
 
