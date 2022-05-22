@@ -38,6 +38,8 @@ dependencies:
   firebase_core:
   firebase_auth:
   cloud_firestore:
+  shared_preferences:
+  http:
 
 dev_dependencies:
   flutter_test:
