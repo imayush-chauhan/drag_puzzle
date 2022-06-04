@@ -112,11 +112,14 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   getUserData() {
     FirebaseFirestore.instance
         .collection("drag_data")
-        .doc(widget.level > 3 ? "1" : "2")
+        .doc("1")
         .get()
         .then((value) {
           setState(() {
-            data = value.get(widget.level > 3 ? "goku" : "level_6");
+            data = value.get(
+              widget.level >= 4 ? "4"
+                  : widget.level >= 2 ? "2" : "1",
+            );
             print("Success!!!");
             print(data);
           });

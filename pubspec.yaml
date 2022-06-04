@@ -37,6 +37,7 @@ dependencies:
   animated_text_kit: ^4.2.1
   firebase_core:
   firebase_auth:
+  firebase_storage:
   cloud_firestore:
   shared_preferences:
   http:
