@@ -23,60 +23,59 @@ class _TestFileState extends State<TestFile> {
 
   String key = "Leve_1";
   Uint8List? image;
-  List<Uint8List> saveLevel1 = [];
+  List<String>? saveLevel1 = [];
+
+  makeNull() async{
+    var prefs = await SharedPreferences.getInstance();
+    prefs.remove(key);
+    setState(() {});
+  }
 
   getData() async{
     print("In getData>>>>>>>>>>>");
     var prefs = await SharedPreferences.getInstance();
-    if(prefs.getString(key) != null){
-      print(jsonDecode(prefs.getString(key)!)[0]);
+    if(prefs.getStringList(key) != null){
+      print("Hmmmm: " + prefs.getStringList(key)![0]);
       setState(() {
-        saveLevel1 = jsonDecode(prefs.getString(key)!)[0];
+        saveLevel1 = prefs.getStringList(key)!;
       });
 
-      // print("Data: ${data[0]}");
-      // // image = data[0] as Uint8List;
-      // for(int i = 0; i < data.length; i++){
-      //   saveLevel1.add(data[i]);
-      //   // Uint8List data = Uint8List.fromList(data[i].cast<int>().toList());
-      //   // saveLevel1.add(`data[i]`);
-      // }
-      setState(() {});
     }else{
       print("Level1 is Empty");
       getImage();
     }
   }
 
-  setData(String key, List<Uint8List> list) async{
+  setData(String key, List<String> list) async{
 
     print("In setData>>>>>>>>>>");
 
     var prefs = await SharedPreferences.getInstance();
     prefs.remove(key).then((value) {
       setState(() {
-        prefs.setString(key, jsonEncode(list));
+        prefs.setStringList(key, list);
       });
     });
 
   }
 
 
-  urlToBase(List<dynamic> list) async{
+  // urlToBase(List<dynamic> list) async{
+  //
+  //   print("In urlToBase>>>>>>>>>>>>>");
+  //
+  //   for(int i = 0; i < list.length; i++){
+  //     image = (await NetworkAssetBundle(Uri.parse(list[i])).load(list[i])).buffer.asUint8List();
+  //     saveLevel1.add(image!);
+  //     // saveLevel1[url.substring(url.length - 4, url.length).toString()] = image!;
+  //   }
+  //
+  //   setState(() {});
+  //
+  //   setData(key, saveLevel1);
+  //
+  // }
 
-    print("In urlToBase>>>>>>>>>>>>>");
-
-    for(int i = 0; i < list.length; i++){
-      image = (await NetworkAssetBundle(Uri.parse(list[i])).load(list[i])).buffer.asUint8List();
-      saveLevel1.add(image!);
-      // saveLevel1[url.substring(url.length - 4, url.length).toString()] = image!;
-    }
-
-    setState(() {});
-
-    setData(key, saveLevel1);
-
-  }
 
   FirebaseStorage storage = FirebaseStorage.instance;
 
@@ -90,6 +89,43 @@ class _TestFileState extends State<TestFile> {
   //     list.add(url);
   //   }
   // }
+
+  Future<String> networkImageToBase64(String imageUrl) async {
+    http.Response response = await http.get(Uri.parse(imageUrl));
+    final bytes = response.bodyBytes;
+    return base64Encode(bytes);
+  }
+
+
+  changeToBase(List data) async{
+
+    print("In changeToBase>>>>>>>>>>>>>>>>");
+
+    for(int i = 0; i < data.length; i++){
+       saveLevel1!.add(await networkImageToBase64(data[i]));
+    }
+
+    setState(() {});
+
+    print("Image: " + saveLevel1![0]);
+
+    setImage(saveLevel1![0]);
+    // setData(key, saveLevel1!);
+
+  }
+
+  setImage(String data){
+    FirebaseFirestore.instance
+        .collection("drag_data")
+        .doc("2")
+        .update({
+      "1" : data,
+    }).onError((error, stackTrace) {
+      print("Error: $error");
+    }).whenComplete(() {
+      print("Success!!!!!!");
+    });
+  }
 
   getImage() {
 
@@ -105,7 +141,7 @@ class _TestFileState extends State<TestFile> {
     }).whenComplete(() {
       print("Success");
       print(list);
-      urlToBase(list);
+      changeToBase(list);
     });
   }
 
@@ -130,7 +166,7 @@ class _TestFileState extends State<TestFile> {
 
             GestureDetector(
               onTap: (){
-                print(saveLevel1[0]);
+                print(saveLevel1![0]);
               },
               child: Container(
                 height: 100,
@@ -139,11 +175,11 @@ class _TestFileState extends State<TestFile> {
               ),
             ),
 
-            saveLevel1.isNotEmpty ?
+            saveLevel1 != null && saveLevel1!.isNotEmpty ?
             Container(
                 height: MediaQuery.of(context).size.width,
                 width: MediaQuery.of(context).size.width,
-                child: Image.memory(saveLevel1[0],fit: BoxFit.contain,)) :
+                child: Image.memory(base64Decode(saveLevel1![0]),fit: BoxFit.contain,)) :
             Center(child: Text("No Image")),
 
           ],

@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DragAndDrop extends StatefulWidget {
   final int level;
@@ -24,6 +27,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   late AnimationController _controller;
 
   bool gap = false;
+  bool win = false;
   // bool isLoading = true;
 
   List countContent = [
@@ -52,6 +56,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     length = widget.length;
     side = widget.side;
     totalTime = widget.time;
+    key = "Level_${widget.level}";
     _controller = AnimationController(
       duration: durationLong,
       vsync: this,
@@ -71,18 +76,6 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     //   // }
     // });
 
-    timer3 = Timer.periodic(durationGap, (timer) {
-      setState(() {
-        if(count < 4){
-          count++;
-        }else{
-          count = 0;
-          remainingTime();
-          timer3.cancel();
-        }
-      });
-    });
-
     Future.delayed(const Duration(milliseconds: 15), () {
       setState(() {
         change = true;
@@ -92,6 +85,18 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     timer = Timer.periodic(durationShort, (timer) {
       setState(() {
         change = !change;
+      });
+    });
+
+    timer3 = Timer.periodic(durationGap, (timer) {
+      setState(() {
+        if(count < 4){
+          count++;
+        }else{
+          count = 0;
+          // remainingTime();
+          timer3.cancel();
+        }
       });
     });
 
@@ -107,7 +112,32 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     getUserData();
   }
 
+
+  String? key;
+
+  getData() async{
+    print("In getData>>>>>>>>>>>");
+    if(key != null){
+      print("Key is : " + key!);
+      var prefs = await SharedPreferences.getInstance();
+      if(prefs.getStringList(key!) != null){
+        print("Hmmmm: " + prefs.getStringList(key!)![0]);
+        setState(() {
+          data = prefs.getStringList(key!)!;
+        });
+
+      }else{
+        print("Level1 is Empty");
+        getUserData();
+      }
+    }else{
+      print("Key is null");
+    }
+
+  }
+
   List data = [];
+  List temp = [];
 
   getUserData() {
     FirebaseFirestore.instance
@@ -121,7 +151,8 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                   : widget.level >= 2 ? "2" : "1",
             );
             print("Success!!!");
-            print(data);
+            print(temp);
+            // changeToBase(temp);
           });
           // Future.delayed(const Duration(seconds: 3), () {
           //   // setState(() {
@@ -135,6 +166,42 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     });
   }
 
+  Future<String> networkImageToBase64(String imageUrl) async {
+    http.Response response = await http.get(Uri.parse(imageUrl));
+    final bytes = response.bodyBytes;
+    return base64Encode(bytes);
+  }
+
+
+  changeToBase(List data2) async{
+
+    print("In changeToBase>>>>>>>>>>>>>>>>");
+
+    for(int i = 0; i < data2.length; i++){
+      data.add(await networkImageToBase64(data2[i]));
+    }
+
+    setState(() {});
+
+    print("Image: " + data[0]);
+
+    // setData(key!, data);
+
+  }
+
+  setData(String key, List<String> list) async{
+
+    print("In setData>>>>>>>>>>");
+
+    var prefs = await SharedPreferences.getInstance();
+    prefs.remove(key).then((value) {
+      setState(() {
+        prefs.setStringList(key, list);
+      });
+    });
+
+  }
+
   remainingTime(){
     timer4 = Timer.periodic(Duration(seconds: 1), (timer) {
       if(time < totalTime){
@@ -142,7 +209,9 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
           time++;
         });
       }else{
-        showWinDialog("Lost lol", false);
+        if(win == false){
+          showWinDialog("Lost lol", false);
+        }
         timer4.cancel();
       }
     });
@@ -153,12 +222,12 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
   @override
   void dispose() {
-    super.dispose();
     timer.cancel();
     timer2.cancel();
-    // timer3.cancel();
+    timer3.cancel();
     timer4.cancel();
     _controller.dispose();
+    super.dispose();
   }
 
   var r = Random();
@@ -517,6 +586,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                         width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                         color: Colors.white,
                         child: Image.network(data[n[index]],fit: BoxFit.contain,),
+                        // child: Image.memory(base64Decode(data[n[index]]),fit: BoxFit.contain,),
                         // child: Image.asset("assets/images/${n[index]}.png",fit: BoxFit.contain,),
                       ),
                       child: Container(
@@ -524,6 +594,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                         width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                         color: Colors.white,
                         child: Image.network(data[n[index]],fit: BoxFit.contain,),
+                        // child: Image.memory(base64Decode(data[n[index]]),fit: BoxFit.contain,),
                         // child: Image.asset("assets/images/${n[index]}.png",fit: BoxFit.contain,),
                       ),
                     ) ;
@@ -532,7 +603,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
               ),
             ),
 
-            for(int i = 0; i < length; i++)
+            for(int i = 0; i < data.length; i++)
               position(mediaQH, mediaQW, location[i.toString()][0], location[i.toString()][1], i),
 
 
@@ -575,6 +646,8 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     );
   }
 
+  bool startTimer = false;
+
   item(double mediaQW,int inx){
     return Draggable<bool>(
       data: m[inx],
@@ -582,6 +655,13 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
         setState(() {
           m[inx] = true;
         });
+
+        if(startTimer == false){
+          startTimer = true;
+          print("IN>>>>>>>>>>>>>>>>>>>>>");
+          remainingTime();
+        }
+
       },
       onDragCompleted: (){
         print("drag complete");
@@ -600,14 +680,15 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
         color: Colors.transparent,
         child: data.isNotEmpty ?
         Image.network(data[inx],fit: BoxFit.contain,
-        loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loading){
-          if(loading == null){
-            return child;
-          }else{
-            return Text("");
-            // Center(child: CircularProgressIndicator());
-          }
-        }) : Container(),
+        // loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loading){
+        //   if(loading == null){
+        //     return child;
+        //   }else{
+        //     return Text("");
+        //     // Center(child: CircularProgressIndicator());
+        //   }
+        // }
+        ) : Container(),
         // child: Image.asset(
         //   "assets/images/$inx.png",
         //   fit: BoxFit.contain,
@@ -638,6 +719,10 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     }
     if(hmm == length-1){
       print("success");
+      setState(() {
+        win = true;
+      });
+      timer4.cancel();
       showWinDialog("Congrats", true);
     }
   }
@@ -796,6 +881,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     }
     setState(() {
       time = 0;
+      win = false;
       selected = -1;
       secondDragStart = -1;
     });
