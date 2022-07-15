@@ -2,6 +2,8 @@
 
 A new Flutter project.
 
+<img src="https://raw.githubusercontent.com/imayush-chauhan/Animated_Bottom_Bar/master/screenshot/image.png" alt="">
+
 ![](assets/images/ss_1.jpg)
 ![](assets/images/ss_2.jpg)
 
