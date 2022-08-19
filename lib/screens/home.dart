@@ -101,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Center(
                     child: AnimatedTextKit(
                       animatedTexts: [
-                        WavyAnimatedText("Puzzle",
+                        WavyAnimatedText("Puzzle ",
                             speed: Duration(milliseconds: 450),
                             textStyle: TextStyle(
                               fontSize: 35,
