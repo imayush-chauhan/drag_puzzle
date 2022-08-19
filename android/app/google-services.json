@@ -1,0 +1,99 @@
+{
+  "project_info": {
+    "project_number": "433951652428",
+    "firebase_url": "https://pokedex-dfadf-default-rtdb.firebaseio.com",
+    "project_id": "pokedex-dfadf",
+    "storage_bucket": "pokedex-dfadf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:433951652428:android:7eaacb10dc7d3be46692e9",
+        "android_client_info": {
+          "package_name": "com.blackhole.drag_puzzle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "433951652428-qhfrsdl090c4jfagf0vkm3mtt029vuon.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeHugLtd_9wgbGQkGZh8ORHObL2ko4CZ0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "433951652428-qhfrsdl090c4jfagf0vkm3mtt029vuon.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:433951652428:android:09bb6d39193365a36692e9",
+        "android_client_info": {
+          "package_name": "com.blackhole.pokidexayu.pokidexayu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "433951652428-qhfrsdl090c4jfagf0vkm3mtt029vuon.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeHugLtd_9wgbGQkGZh8ORHObL2ko4CZ0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "433951652428-qhfrsdl090c4jfagf0vkm3mtt029vuon.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-3028010056599796~5748304131"
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:433951652428:android:5d2af4286d0b8be66692e9",
+        "android_client_info": {
+          "package_name": "com.blackhole.tapntap.tapntap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "433951652428-qhfrsdl090c4jfagf0vkm3mtt029vuon.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeHugLtd_9wgbGQkGZh8ORHObL2ko4CZ0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "433951652428-qhfrsdl090c4jfagf0vkm3mtt029vuon.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
