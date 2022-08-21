@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class DragAndDrop extends StatefulWidget {
   final int level;
@@ -62,6 +63,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
       vsync: this,
     );
     _controller.repeat();
+    checkConnectivity();
     // _controller.addListener(() {
     //
     //
@@ -115,26 +117,32 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
   String? key;
 
-  getData() async{
-    print("In getData>>>>>>>>>>>");
-    if(key != null){
-      print("Key is : " + key!);
-      var prefs = await SharedPreferences.getInstance();
-      if(prefs.getStringList(key!) != null){
-        print("Hmmmm: " + prefs.getStringList(key!)![0]);
-        setState(() {
-          data = prefs.getStringList(key!)!;
-        });
-
-      }else{
-        print("Level1 is Empty");
-        getUserData();
+  checkConnectivity() async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      if(widget.level == 1){
+        showConnectToInternet("Rearrange the different parts of image to make an actual image in given time", false);
       }
     }else{
-      print("Key is null");
+      showConnectToInternet("Connect to Internet",true);
+      print("no internet");
     }
-
   }
+
+  // getData() async{
+  //   if(key != null){
+  //     var prefs = await SharedPreferences.getInstance();
+  //     if(prefs.getStringList(key!) != null){
+  //       setState(() {
+  //         data = prefs.getStringList(key!)!;
+  //       });
+  //     }else{
+  //       getUserData();
+  //     }
+  //   }else{
+  //   }
+  //
+  // }
 
   List data = [];
   List temp = [];
@@ -152,7 +160,6 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
               : widget.level >= 2 ? "2" : "1",
         );
         print("Success!!!");
-        print(temp);
         // changeToBase(temp);
       });
       // Future.delayed(const Duration(seconds: 3), () {
@@ -176,32 +183,28 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
   changeToBase(List data2) async{
 
-    print("In changeToBase>>>>>>>>>>>>>>>>");
-
     for(int i = 0; i < data2.length; i++){
       data.add(await networkImageToBase64(data2[i]));
     }
 
     setState(() {});
 
-    print("Image: " + data[0]);
-
     // setData(key!, data);
 
   }
 
-  setData(String key, List<String> list) async{
-
-    print("In setData>>>>>>>>>>");
-
-    var prefs = await SharedPreferences.getInstance();
-    prefs.remove(key).then((value) {
-      setState(() {
-        prefs.setStringList(key, list);
-      });
-    });
-
-  }
+  // setData(String key, List<String> list) async{
+  //
+  //   print("In setData>>>>>>>>>>");
+  //
+  //   var prefs = await SharedPreferences.getInstance();
+  //   prefs.remove(key).then((value) {
+  //     setState(() {
+  //       prefs.setStringList(key, list);
+  //     });
+  //   });
+  //
+  // }
 
   remainingTime(){
     timer4 = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -527,11 +530,9 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                       onWillAccept: (val) => val != true,
                       onLeave: (val){
                         setState(() {
-                          print("Leave");
                         });
                       },
                       onAccept: (_){
-                        print("accept");
                         setState(() {
                           Future.delayed(const Duration(milliseconds: 100), () {
                             setState(() {
@@ -568,7 +569,6 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                         });
                       },
                       onDragCompleted: (){
-                        print("drag complete");
                         setState(() {
                           selected = secondDragStart;
                           n[index] = -1;
@@ -659,13 +659,11 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
         if(startTimer == false){
           startTimer = true;
-          print("IN>>>>>>>>>>>>>>>>>>>>>");
           remainingTime();
         }
 
       },
       onDragCompleted: (){
-        print("drag complete");
         setState(() {
           selected = inx;
         });
@@ -719,13 +717,53 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
       }
     }
     if(hmm == length-1){
-      print("success");
+      print("win");
       setState(() {
         win = true;
       });
       timer4.cancel();
-      showWinDialog("Congrats", true);
+      setLevelData();
     }
+  }
+
+  setLevelData() async{
+    await FirebaseFirestore.instance.collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid).get().then((value){
+          if(widget.level >= value.get("level")){
+
+            FirebaseFirestore.instance.collection("users")
+                .doc(FirebaseAuth.instance.currentUser!.uid).collection("level").doc("level_${widget.level}").set({
+              "total_time": totalTime,
+              "time_taken": time,
+              "date": DateTime.now(),
+              "level": widget.level,
+              "user": FirebaseAuth.instance.currentUser!.uid,
+            });
+
+            showWinDialog("High Score $time sec", true);
+
+          }else{
+
+            FirebaseFirestore.instance.collection("users")
+                .doc(FirebaseAuth.instance.currentUser!.uid).collection("level")
+                .doc("level_${widget.level}").get().then((value) {
+
+                  if(time > value.get("time_taken")){
+                    FirebaseFirestore.instance.collection("users")
+                        .doc(FirebaseAuth.instance.currentUser!.uid).collection("level").doc("level_${widget.level}").update({
+                      "time_taken": time,
+                    });
+
+                    showWinDialog("High Score $time sec", true);
+
+                  }else{
+                    showWinDialog("Congrats $time sec", true);
+                  }
+
+                });
+
+          }
+        });
   }
 
   starSmall(){
@@ -984,6 +1022,100 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                     },
                     child: Text(
                       '+5 sec',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        });
+  }
+
+  showConnectToInternet(String yo, bool connect) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Center(
+                child: Text(
+                  yo,
+                  style: TextStyle(
+                    color: Colors.black.withOpacity(0.75),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                )),
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Text(
+                        "cancel",
+                        style: TextStyle(
+                          fontSize: 21,
+                          color: Color(0xff151515),
+                        ),
+                      ),
+                    ),
+                  ),
+                  connect == true ?
+                  MaterialButton(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    color: Colors.red,
+                    minWidth: MediaQuery.of(context).size.width*0.3,
+                    height: 50,
+                    onPressed: () {
+                      Future.delayed(const Duration(milliseconds: 125), () {
+                        setState(() {
+                          Navigator.of(context).pop();
+                        });
+                      });
+                      Navigator.of(context).pop();
+                      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
+                      //   return Level();
+                      // }));
+                    },
+                    child: Text(
+                      'Restart',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ) :
+                  MaterialButton(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    color: Colors.red,
+                    minWidth: MediaQuery.of(context).size.width*0.3,
+                    height: 50,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'Start',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,

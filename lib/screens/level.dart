@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drag_puzzle/data/data.dart';
 import 'package:drag_puzzle/screens/drag_puzzle.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Level extends StatefulWidget {
@@ -8,6 +10,24 @@ class Level extends StatefulWidget {
 }
 
 class _LevelState extends State<Level> {
+
+  snackBar(String s){
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            duration: Duration(milliseconds: 2000),
+            backgroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 25,vertical: 15),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            content: Text(s,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600),
+            ),
+          behavior: SnackBarBehavior.floating,
+        ),
+    );
+  }
 
 
   @override
@@ -55,51 +75,77 @@ class _LevelState extends State<Level> {
           elevation: 0,
         ),
         body: Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: mediaQW*0.02),
-                child: GridView.builder(
-                  itemCount: Data.level.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: mediaQH*0.01,
-                    crossAxisSpacing: mediaQW*0.03,
-                    mainAxisExtent: mediaQH*0.15,
-                  ),
-                  shrinkWrap: true,
-                  itemBuilder: (context,index){
-                    return GestureDetector(
-                      onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return DragAndDrop(
-                            level: index + 1,
-                            length: Data.level[index][0],
-                            side: Data.level[index][1],
-                            time: Data.level[index][2],
-                          );
-                        },));
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(mediaQW*0.05),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text("Level ${index+1}",
-                          style: TextStyle(
-                            color: Color(0xffC850C0),
-                            fontSize: mediaQW*0.042,
-                            fontWeight: FontWeight.bold,
-                          ),),
+          child: StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).snapshots(),
+            builder: (context,snapshot){
+              
+              if(!snapshot.hasData){
+                return Center(child: CircularProgressIndicator());
+              }
+              
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: mediaQW*0.02),
+                    child: GridView.builder(
+                      itemCount: Data.level.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: mediaQH*0.03,
+                        crossAxisSpacing: mediaQW*0.03,
+                        mainAxisExtent: mediaQH*0.1,
                       ),
-                    );
-                  },
-                ),
-              )
-            ],
+                      shrinkWrap: true,
+                      itemBuilder: (context,index){
+                        return index + 1 <= snapshot.data!.get("level") ?
+                        GestureDetector(
+                          onTap: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) {
+                              return DragAndDrop(
+                                level: index + 1,
+                                length: Data.level[index][0],
+                                side: Data.level[index][1],
+                                time: Data.level[index][2],
+                              );
+                            },));
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(mediaQW*0.05),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text("Level ${index+1}",
+                              style: TextStyle(
+                                color: Color(0xffC850C0),
+                                fontSize: mediaQW*0.042,
+                                fontWeight: FontWeight.bold,
+                              ),),
+                          ),
+                        ) :
+                        GestureDetector(
+                          onTap: (){
+
+                            snackBar("Unlock level $index");
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              borderRadius: BorderRadius.circular(mediaQW*0.05),
+                            ),
+                            alignment: Alignment.center,
+                            child: Icon(Icons.lock,color: Colors.white,),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                ],
+              );
+              
+            },
           ),
         ),
       ),

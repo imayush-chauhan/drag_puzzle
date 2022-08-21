@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:drag_puzzle/screens/drag_offline.dart';
-import 'package:drag_puzzle/screens/drag_puzzle.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drag_puzzle/screens/level.dart';
-import 'package:drag_puzzle/screens/test.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -37,9 +35,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void signInAnonymously() {
     if(FirebaseAuth.instance.currentUser == null) {
-      _auth.signInAnonymously();
-      print("AUTH ID: ${FirebaseAuth.instance.currentUser}");
+      _auth.signInAnonymously().then((value) {
+        setData();
+      });
     }
+  }
+
+  setData()async{
+    await FirebaseFirestore.instance.collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid).set({
+
+      "user": FirebaseAuth.instance.currentUser!.uid,
+      "date": DateTime.now(),
+      "level": 1,
+
+    });
   }
 
   @override
@@ -51,7 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
   add() async{
     await FirebaseStorage.instance.ref().child("drag_level").child("level_7").listAll().then((value) {
       value.items.elementAt(0).getDownloadURL().then((value) {
-        print(value);
       });
     });
   }
@@ -149,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     elevation: 10,
                     child: Center(
                         child: Text(
-                          "Level",
+                          "Levels",
                           style: TextStyle(
                             fontSize: mediaQW * 0.053,
                             fontWeight: FontWeight.w600,
@@ -159,6 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              Container(),
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -167,18 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Future.delayed(const Duration(milliseconds: 300), () {
                     setState(() {
                       newGame = false;
-                      // add();
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return Test();
-                          // return DragAndDropOffline(
-                          //   level: 6,
-                          //   length: 9,
-                          //   side: 3,
-                          //   time: 15,
-                          // );
-                        },
-                      ));
+
                     });
                   });
                 },
@@ -197,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     elevation: 10,
                     child: Center(
                         child: Text(
-                          "Play",
+                          "How to play",
                           style: TextStyle(
                             fontSize: mediaQW * 0.053,
                             fontWeight: FontWeight.w600,
