@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:drag_puzzle/screens/how%20to%20pllay.dart';
 import 'package:drag_puzzle/screens/level.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -113,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         WavyAnimatedText("Puzzle ",
                             speed: Duration(milliseconds: 450),
                             textStyle: TextStyle(
-                              fontSize: 35,
+                              fontSize: mediaQW*0.085,
                               fontWeight: FontWeight.w600,
                               color: Color(0xffDD2A7B),
                             )),
@@ -160,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text(
                           "Levels",
                           style: TextStyle(
-                            fontSize: mediaQW * 0.053,
+                            fontSize: mediaQW * 0.05,
                             fontWeight: FontWeight.w600,
                             color: Color(0xffDD2A7B),
                           ),
@@ -168,7 +169,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              Container(),
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -177,7 +177,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   Future.delayed(const Duration(milliseconds: 300), () {
                     setState(() {
                       newGame = false;
-
+                      Navigator.push(context, MaterialPageRoute(builder: (context){
+                        return HowToPlay();
+                      }));
                     });
                   });
                 },
@@ -198,7 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text(
                           "How to play",
                           style: TextStyle(
-                            fontSize: mediaQW * 0.053,
+                            fontSize: mediaQW * 0.05,
                             fontWeight: FontWeight.w600,
                             color: Color(0xffDD2A7B),
                           ),
@@ -206,6 +208,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              Container(),
+              Container(),
               Container(),
             ],
           ),

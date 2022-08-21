@@ -729,7 +729,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   setLevelData() async{
     await FirebaseFirestore.instance.collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid).get().then((value){
-          if(widget.level >= value.get("level")){
+          if(widget.level > value.get("level")){
 
             FirebaseFirestore.instance.collection("users")
                 .doc(FirebaseAuth.instance.currentUser!.uid).collection("level").doc("level_${widget.level}").set({
@@ -737,6 +737,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
               "time_taken": time,
               "date": DateTime.now(),
               "level": widget.level,
+              "frequency": 1,
               "user": FirebaseAuth.instance.currentUser!.uid,
             });
 
@@ -747,8 +748,9 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
             FirebaseFirestore.instance.collection("users")
                 .doc(FirebaseAuth.instance.currentUser!.uid).collection("level")
                 .doc("level_${widget.level}").get().then((value) {
-
-                  if(time > value.get("time_taken")){
+                  int i = value.get("frequency");
+                  i++;
+                  if(time < value.get("time_taken")){
                     FirebaseFirestore.instance.collection("users")
                         .doc(FirebaseAuth.instance.currentUser!.uid).collection("level").doc("level_${widget.level}").update({
                       "time_taken": time,
@@ -759,6 +761,11 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                   }else{
                     showWinDialog("Congrats $time sec", true);
                   }
+
+                  FirebaseFirestore.instance.collection("users")
+                      .doc(FirebaseAuth.instance.currentUser!.uid).collection("level").doc("level_${widget.level}").update({
+                    "frequency": i,
+                  });
 
                 });
 
