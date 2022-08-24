@@ -31,6 +31,8 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   bool win = false;
   // bool isLoading = true;
 
+  int level = 0;
+
   List countContent = [
     "",
     "3",
@@ -54,10 +56,12 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
+    level = widget.level;
     length = widget.length;
     side = widget.side;
     totalTime = widget.time;
-    key = "Level_${widget.level}";
+    key = "Level_${level}";
+    print(level);
     _controller = AnimationController(
       duration: durationLong,
       vsync: this,
@@ -120,7 +124,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   checkConnectivity() async{
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
-      if(widget.level == 1){
+      if(level == 1){
         showConnectToInternet("Rearrange the different parts of image to make an actual image in given time", false);
       }
     }else{
@@ -148,6 +152,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   List temp = [];
 
   getUserData() {
+    data.clear();
     FirebaseFirestore.instance
         .collection("drag_data")
         .doc("1")
@@ -155,9 +160,9 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
         .then((value) {
       setState(() {
         data = value.get(
-          widget.level >= 7 ? "7" :
-          widget.level >= 4 ? "4"
-              : widget.level >= 2 ? "2" : "1",
+          level >= 7 ? "7" :
+          level >= 4 ? "4"
+              : level >= 2 ? "2" : "1",
         );
         print("Success!!!");
         // changeToBase(temp);
@@ -208,7 +213,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
   remainingTime(){
     timer4 = Timer.periodic(Duration(seconds: 1), (timer) {
-      if(time < totalTime){
+      if(time != totalTime){
         setState(() {
           time++;
         });
@@ -729,16 +734,21 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
   setLevelData() async{
     await FirebaseFirestore.instance.collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid).get().then((value){
-          if(widget.level > value.get("level")){
+          if(level >= value.get("level")){
 
             FirebaseFirestore.instance.collection("users")
-                .doc(FirebaseAuth.instance.currentUser!.uid).collection("level").doc("level_${widget.level}").set({
+                .doc(FirebaseAuth.instance.currentUser!.uid).collection("level").doc("level_$level").set({
               "total_time": totalTime,
               "time_taken": time,
               "date": DateTime.now(),
-              "level": widget.level,
+              "level": level,
               "frequency": 1,
               "user": FirebaseAuth.instance.currentUser!.uid,
+            });
+
+            FirebaseFirestore.instance.collection("users").
+            doc(FirebaseAuth.instance.currentUser!.uid).update({
+              "level": level+1,
             });
 
             showWinDialog("High Score $time sec", true);
@@ -747,12 +757,12 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
 
             FirebaseFirestore.instance.collection("users")
                 .doc(FirebaseAuth.instance.currentUser!.uid).collection("level")
-                .doc("level_${widget.level}").get().then((value) {
+                .doc("level_$level").get().then((value) {
                   int i = value.get("frequency");
                   i++;
                   if(time < value.get("time_taken")){
                     FirebaseFirestore.instance.collection("users")
-                        .doc(FirebaseAuth.instance.currentUser!.uid).collection("level").doc("level_${widget.level}").update({
+                        .doc(FirebaseAuth.instance.currentUser!.uid).collection("level").doc("level_$level").update({
                       "time_taken": time,
                     });
 
@@ -763,7 +773,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                   }
 
                   FirebaseFirestore.instance.collection("users")
-                      .doc(FirebaseAuth.instance.currentUser!.uid).collection("level").doc("level_${widget.level}").update({
+                      .doc(FirebaseAuth.instance.currentUser!.uid).collection("level").doc("level_$level").update({
                     "frequency": i,
                   });
 

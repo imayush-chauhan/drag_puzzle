@@ -99,7 +99,7 @@ class _LevelState extends State<Level> {
                       ),
                       shrinkWrap: true,
                       itemBuilder: (context,index){
-                        return index + 1 <= snapshot.data!.get("level") ?
+                        return index < snapshot.data!.get("level") ?
                         GestureDetector(
                           onTap: (){
                             Navigator.push(context, MaterialPageRoute(builder: (context) {
