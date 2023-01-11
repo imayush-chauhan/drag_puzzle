@@ -127,6 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   elevation: 10,
+
                   child: Center(
                     child: AnimatedTextKit(
                       animatedTexts: [
