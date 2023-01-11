@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:drag_puzzle/screens/about%20us.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -249,6 +250,7 @@ class _HowToPlayState extends State<HowToPlay> {
                 "If you enjoy playing Drag Game or want to know more about it, consider "
                     "following us on different social medias. You will get all the latest news "
                     "regarding to updates or ask any query we will always there to help you.",
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.black.withOpacity(0.5),

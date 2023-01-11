@@ -127,7 +127,6 @@ class _LevelState extends State<Level> {
                         ) :
                         GestureDetector(
                           onTap: (){
-
                             snackBar("Unlock level $index");
                           },
                           child: Container(

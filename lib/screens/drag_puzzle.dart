@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:drag_puzzle/data/data.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -944,6 +945,19 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     remainingTime();
   }
 
+  nextLevel(){
+    Future.delayed(Duration(milliseconds: 100),(){
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
+        return DragAndDrop(
+            length: Data.level[level][0],
+            side: Data.level[level][1],
+            time: Data.level[level][2],
+            level: level+1);
+      }));
+    });
+    Navigator.of(context).pop();
+  }
+
   showWinDialog(String yo, bool win) {
     showDialog(
         context: context,
@@ -1010,11 +1024,11 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                     minWidth: MediaQuery.of(context).size.width*0.3,
                     height: 50,
                     onPressed: () {
-                      restart();
-                      Navigator.of(context).pop();
+                      nextLevel();
+                      // Navigator.of(context).pop();
                     },
                     child: Text(
-                      'Restart',
+                      'Next Level',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,

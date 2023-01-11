@@ -34,10 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
     signInAnonymously();
   }
 
-  void signInAnonymously() {
+  void signInAnonymously() async{
     if(FirebaseAuth.instance.currentUser == null) {
-      _auth.signInAnonymously().then((value) {
+      await _auth.signInAnonymously().then((value) {
         setData();
+      }).catchError((e){
+        snackBar("Error: $e");
       });
     }
   }
@@ -45,7 +47,6 @@ class _HomeScreenState extends State<HomeScreen> {
   setData()async{
     await FirebaseFirestore.instance.collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid).set({
-
       "user": FirebaseAuth.instance.currentUser!.uid,
       "date": DateTime.now(),
       "level": 1,
@@ -64,6 +65,24 @@ class _HomeScreenState extends State<HomeScreen> {
       value.items.elementAt(0).getDownloadURL().then((value) {
       });
     });
+  }
+
+  snackBar(String s){
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: Duration(milliseconds: 2000),
+        backgroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(horizontal: 25,vertical: 15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        content: Text(s,
+          style: TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w600),
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override

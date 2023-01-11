@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "433951652428-l79reh75t0ofh7ef0tft2hfqfboro6tq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.blackhole.drag_puzzle",
+            "certificate_hash": "beefc9f5b7e26ecc6453f68c49a42fa8d828c876"
+          }
+        },
+        {
           "client_id": "433951652428-qhfrsdl090c4jfagf0vkm3mtt029vuon.apps.googleusercontent.com",
           "client_type": 3
         }
