@@ -1,12 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:drag_puzzle/ads/ads.dart';
 import 'package:drag_puzzle/data/data.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DragAndDrop extends StatefulWidget {
   final int level;
@@ -62,13 +66,28 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     side = widget.side;
     totalTime = widget.time;
     key = "Level_${level}";
-    print(level);
     _controller = AnimationController(
       duration: durationLong,
       vsync: this,
     );
     _controller.repeat();
     checkConnectivity();
+    Future.delayed(Duration(milliseconds: 200),(){
+      if(level == 3){
+        share("Please Share our puzzle game with your friends and family, if you like playing");
+      }else{
+        if(AdsProvider.rewardedAd == null){
+          AdsProvider().createRewardedAd();
+        }
+        if(AdsProvider.interstitialAd == null){
+          AdsProvider().createInterstitialAd();
+        }else{
+          AdsProvider().showInterstitialAd();
+        }
+      }
+
+    });
+
     // _controller.addListener(() {
     //
     //
@@ -592,7 +611,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                         height: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                         width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                         color: Colors.white,
-                        child: Image.network(data[n[index]],fit: BoxFit.contain,),
+                        child: CachedNetworkImage(imageUrl: data[n[index]],fit: BoxFit.contain,),
                         // child: Image.memory(base64Decode(data[n[index]]),fit: BoxFit.contain,),
                         // child: Image.asset("assets/images/${n[index]}.png",fit: BoxFit.contain,),
                       ),
@@ -600,7 +619,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                         height: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                         width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
                         color: Colors.white,
-                        child: Image.network(data[n[index]],fit: BoxFit.contain,),
+                        child: CachedNetworkImage(imageUrl: data[n[index]],fit: BoxFit.contain,),
                         // child: Image.memory(base64Decode(data[n[index]]),fit: BoxFit.contain,),
                         // child: Image.asset("assets/images/${n[index]}.png",fit: BoxFit.contain,),
                       ),
@@ -684,16 +703,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
         width: side <= 3 ? mediaQW*0.28 : mediaQW*0.2,
         color: Colors.transparent,
         child: data.isNotEmpty ?
-        Image.network(data[inx],fit: BoxFit.contain,
-          // loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loading){
-          //   if(loading == null){
-          //     return child;
-          //   }else{
-          //     return Text("");
-          //     // Center(child: CircularProgressIndicator());
-          //   }
-          // }
-        ) : Container(),
+        CachedNetworkImage(imageUrl: data[inx],fit: BoxFit.contain,) : Container(),
         // child: Image.asset(
         //   "assets/images/$inx.png",
         //   fit: BoxFit.contain,
@@ -708,7 +718,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
             color: Colors.transparent,
           ),
           child: data.isNotEmpty ?
-          Image.network(data[inx],fit: BoxFit.contain,) : Container(),
+          CachedNetworkImage(imageUrl: data[inx],fit: BoxFit.contain,) : Container(),
           // child: Image.asset("assets/images/$inx.png",fit: BoxFit.contain,),
         ),
       ),
@@ -1044,15 +1054,20 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                     color: Colors.red,
                     minWidth: MediaQuery.of(context).size.width*0.25,
                     height: 50,
-                    onPressed: () {
+                    onPressed: () async{
                       setState(() {
-                        totalTime = totalTime + 5;
-                        remainingTime();
+                        timer4.cancel();
+                        startTimer = false;
+                      });
+                      await AdsProvider().showRewardedAd();
+                      setState(() {
+                        totalTime = totalTime + Data.level[level-1][3];
+                        // remainingTime();
                       });
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                      '+5 sec',
+                      '+${Data.level[level-1][3]} sec',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -1154,6 +1169,73 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
                       ),
                     ),
                   ),
+                ],
+              ),
+            ],
+          );
+        });
+  }
+
+  share(String yo) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Center(
+                child: Text(
+                  yo,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.black.withOpacity(0.75),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                )),
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Text(
+                        "cancel",
+                        style: TextStyle(
+                          fontSize: 21,
+                          color: Color(0xff151515),
+                        ),
+                      ),
+                    ),
+                  ),
+                  MaterialButton(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    color: Colors.red,
+                    minWidth: MediaQuery.of(context).size.width*0.3,
+                    height: 50,
+                    onPressed: () async{
+                      await Share.share("https://play.google.com/store/apps/details?id=com.blackhole.drag_puzzle");
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'Share',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
                 ],
               ),
             ],

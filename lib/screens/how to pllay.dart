@@ -1,7 +1,3 @@
-import 'dart:async';
-
-import 'package:drag_puzzle/screens/about%20us.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -186,7 +182,7 @@ class _HowToPlayState extends State<HowToPlay> {
                 fontSize: 24,
                 color: Colors.black.withOpacity(0.7),
               ),),
-            Text("v1.0.0",
+            Text("v1.0.4",
               style: TextStyle(
                 fontSize: 22,
                 color: Colors.black.withOpacity(0.7),
@@ -195,7 +191,7 @@ class _HowToPlayState extends State<HowToPlay> {
               onTap: (){
                 showAboutDialog(
                   context: context,
-                  applicationVersion: "1.0.0",
+                  applicationVersion: "1.0.4",
                 );
               },
               child: Container(

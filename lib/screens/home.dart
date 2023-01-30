@@ -6,6 +6,9 @@ import 'package:drag_puzzle/screens/level.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -18,6 +21,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool change = false;
   late Timer timer;
+
+  BannerAd? _ad;
+
+  bannerAds()async{
+    print("in");
+    try{
+      _ad = BannerAd(
+        adUnitId: "ca-app-pub-3940256099942544/6300978111",
+        // adUnitId: "ca-app-pub-3028010056599796/6187429704",
+        size: AdSize.banner,
+        request: AdRequest(),
+        listener: BannerAdListener(
+            onAdLoaded: (_){
+              print("ad loaded");
+            },
+            onAdFailedToLoad: (_ad,error){
+              print("Ad failed to load on Error: $error");
+            }
+        ),
+      );
+    }catch(e){
+      print("Error: $e");
+    }
+
+    await _ad!.load();
+    setState(() {
+
+    });
+  }
 
   bool newGame = false;
   bool level = false;
@@ -32,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     });
     signInAnonymously();
+    bannerAds();
   }
 
   void signInAnonymously() async{
@@ -58,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     super.dispose();
     timer.cancel();
+    _ad!.dispose();
   }
 
   add() async{
@@ -113,124 +147,191 @@ class _HomeScreenState extends State<HomeScreen> {
           height: mediaQH,
           width: mediaQW,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(),
               Container(
-                height: mediaQH * 0.2,
-                width: mediaQW * 0.75,
-                child: Card(
-                  margin: EdgeInsets.all(0),
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  elevation: 10,
+                height: mediaQH-200,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(),
+                    Container(
+                      height: mediaQH * 0.2,
+                      width: mediaQW * 0.75,
+                      child: Card(
+                        margin: EdgeInsets.all(0),
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        elevation: 10,
+                        child: Center(
+                          child: AnimatedTextKit(
+                            animatedTexts: [
+                              WavyAnimatedText("Puzzle ",
+                                  speed: Duration(milliseconds: 450),
+                                  textStyle: TextStyle(
+                                    fontSize: mediaQW*0.085,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xffDD2A7B),
+                                  )),
+                            ],
+                            repeatForever: true,
+                            isRepeatingAnimation: true,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // SizedBox(
+                    //   height: mediaQH * 0.1,
+                    // ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          level = true;
+                        });
+                        Future.delayed(const Duration(milliseconds: 300), () {
+                          setState(() {
+                            level = false;
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (context) {
+                                return Level();
+                              },
+                            ));
+                          });
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        height:
+                        level == false ? mediaQH * 0.085 : mediaQH * 0.078,
+                        width: level == false ? mediaQW * 0.5 : mediaQW * 0.45,
+                        child: Card(
+                          margin: EdgeInsets.all(0),
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          elevation: 10,
+                          child: Center(
+                              child: Text(
+                                "Levels",
+                                style: TextStyle(
+                                  fontSize: mediaQW * 0.05,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xffDD2A7B),
+                                ),
+                              )),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          newGame = true;
+                        });
+                        Future.delayed(const Duration(milliseconds: 300), () {
+                          setState(() {
+                            newGame = false;
+                            Navigator.push(context, MaterialPageRoute(builder: (context){
+                              return HowToPlay();
+                            }));
+                          });
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        height:
+                        newGame == false ? mediaQH * 0.085 : mediaQH * 0.078,
+                        width: newGame == false ? mediaQW * 0.5 : mediaQW * 0.45,
+                        child: Card(
+                          margin: EdgeInsets.all(0),
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          elevation: 10,
+                          child: Center(
+                              child: Text(
+                                "How to play",
+                                style: TextStyle(
+                                  fontSize: mediaQW * 0.05,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xffDD2A7B),
+                                ),
+                              ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        InkWell(
+                          onTap: ()async{
+                            await launchUrlString("https://play.google.com/store/apps/details?id=com.blackhole.drag_puzzle");
+                          },
+                          child: Container(
+                            height: 40,
+                            width: 40,
+                            color: Colors.transparent,
+                            alignment: Alignment.center,
+                            child: Icon(Icons.star,color: Colors.white,),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: ()async{
+                            await Share.share("https://play.google.com/store/apps/details?id=com.blackhole.drag_puzzle");
+                          },
+                          child: Container(
+                            height: 40,
+                            width: 40,
+                            color: Colors.transparent,
+                            alignment: Alignment.center,
+                            child: Icon(Icons.share,color: Colors.white,),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context){
+                              return HowToPlay();
+                            }));
+                          },
+                          child: Container(
+                            height: 40,
+                            width: 40,
+                            color: Colors.transparent,
+                            alignment: Alignment.center,
+                            child: Icon(Icons.settings,color: Colors.white,),
+                          ),
+                        ),
 
-                  child: Center(
-                    child: AnimatedTextKit(
-                      animatedTexts: [
-                        WavyAnimatedText("Puzzle ",
-                            speed: Duration(milliseconds: 450),
-                            textStyle: TextStyle(
-                              fontSize: mediaQW*0.085,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xffDD2A7B),
-                            )),
                       ],
-                      repeatForever: true,
-                      isRepeatingAnimation: true,
                     ),
                   ),
-                ),
+
+                  _ad != null ?
+                  Container(
+                    alignment: Alignment.center,
+                    child: AdWidget(ad: _ad!,),
+                    width: _ad!.size.width.toDouble(),
+                    height: _ad!.size.height.toDouble(),
+                  ) :
+                  Container(),
+                ],
               ),
-              // SizedBox(
-              //   height: mediaQH * 0.1,
-              // ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    level = true;
-                  });
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    setState(() {
-                      level = false;
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return Level();
-                        },
-                      ));
-                    });
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  height:
-                  level == false ? mediaQH * 0.085 : mediaQH * 0.078,
-                  width: level == false ? mediaQW * 0.5 : mediaQW * 0.45,
-                  child: Card(
-                    margin: EdgeInsets.all(0),
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    elevation: 10,
-                    child: Center(
-                        child: Text(
-                          "Levels",
-                          style: TextStyle(
-                            fontSize: mediaQW * 0.05,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xffDD2A7B),
-                          ),
-                        )),
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    newGame = true;
-                  });
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    setState(() {
-                      newGame = false;
-                      Navigator.push(context, MaterialPageRoute(builder: (context){
-                        return HowToPlay();
-                      }));
-                    });
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  height:
-                  newGame == false ? mediaQH * 0.085 : mediaQH * 0.078,
-                  width: newGame == false ? mediaQW * 0.5 : mediaQW * 0.45,
-                  child: Card(
-                    margin: EdgeInsets.all(0),
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    elevation: 10,
-                    child: Center(
-                        child: Text(
-                          "How to play",
-                          style: TextStyle(
-                            fontSize: mediaQW * 0.05,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xffDD2A7B),
-                          ),
-                        )),
-                  ),
-                ),
-              ),
-              Container(),
-              Container(),
-              Container(),
+
             ],
           ),
         ),

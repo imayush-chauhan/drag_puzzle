@@ -2,7 +2,7 @@
     package="com.blackhole.drag_puzzle">
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="drag_puzzle"
+        android:label="Drag Puzzle"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -35,5 +35,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+       <meta-data
+           android:name="com.google.android.gms.ads.APPLICATION_ID"
+           android:value="ca-app-pub-3028010056599796~6138757426"/>
     </application>
 </manifest>

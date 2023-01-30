@@ -3,6 +3,7 @@ import 'package:drag_puzzle/data/data.dart';
 import 'package:drag_puzzle/screens/drag_puzzle.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:in_app_review/in_app_review.dart';
 
 class Level extends StatefulWidget {
   @override
@@ -10,6 +11,20 @@ class Level extends StatefulWidget {
 }
 
 class _LevelState extends State<Level> {
+
+  final InAppReview inAppReview = InAppReview.instance;
+
+  review() async{
+    if (await inAppReview.isAvailable()) {
+      inAppReview.requestReview();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    review();
+  }
 
   snackBar(String s){
     ScaffoldMessenger.of(context).showSnackBar(
