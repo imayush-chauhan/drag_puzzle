@@ -2,7 +2,8 @@
 
 A new Flutter project.
 
-![](assets/images/ss_1.jpg alt="" width="500" height="600")
+<img src="assets/images/ss_1.jpg" alt="Girl in a jacket" width="500" height="600">
+<!-- ![](assets/images/ss_1.jpg alt="" width="500" height="600") -->
 ![](assets/images/ss_2.jpg)
 
 ## Getting Started
