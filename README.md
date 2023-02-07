@@ -2,7 +2,7 @@
 
 A new Flutter project.
 
-![](assets/images/ss_1.jpg)
+![](assets/images/ss_1.jpg width="320" height="430")
 ![](assets/images/ss_2.jpg)
 
 ## Getting Started
