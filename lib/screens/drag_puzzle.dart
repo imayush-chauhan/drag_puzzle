@@ -10,7 +10,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class DragAndDrop extends StatefulWidget {
   final int level;
@@ -65,7 +64,7 @@ class _DragAndDropState extends State<DragAndDrop> with SingleTickerProviderStat
     length = widget.length;
     side = widget.side;
     totalTime = widget.time;
-    key = "Level_${level}";
+    key = "Level_$level";
     _controller = AnimationController(
       duration: durationLong,
       vsync: this,

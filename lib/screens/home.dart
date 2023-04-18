@@ -8,7 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -29,7 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
     try{
       _ad = BannerAd(
         adUnitId: "ca-app-pub-3940256099942544/6300978111",
-        // adUnitId: "ca-app-pub-3028010056599796/6187429704",
         size: AdSize.banner,
         request: AdRequest(),
         listener: BannerAdListener(
@@ -280,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         InkWell(
                           onTap: ()async{
-                            await launchUrlString("https://play.google.com/store/apps/details?id=com.blackhole.drag_puzzle");
+                            await launchUrl(Uri.parse("https://play.google.com/store/apps/details?id=com.blackhole.drag_puzzle"),mode: LaunchMode.externalApplication,);
                           },
                           child: Container(
                             height: 40,

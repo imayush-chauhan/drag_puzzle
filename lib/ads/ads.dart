@@ -9,7 +9,6 @@ class AdsProvider{
   void createInterstitialAd() {
     InterstitialAd.load(
         adUnitId: 'ca-app-pub-3940256099942544/1033173712',
-        // adUnitId: 'ca-app-pub-3028010056599796/4042469599',
         request: AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (InterstitialAd ad) {
@@ -59,7 +58,6 @@ class AdsProvider{
   void createRewardedAd() async{
     await RewardedAd.load(
         adUnitId: "ca-app-pub-3940256099942544/5224354917",
-        // adUnitId: "ca-app-pub-3028010056599796/6334523222",
         request: AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (RewardedAd ad) {
