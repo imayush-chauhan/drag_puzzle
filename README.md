@@ -1,6 +1,6 @@
 # Drag Puzzle
 
-A new Flutter project.
+Drag Puzzle is a Memory Puzzle game made with Flutter and to complete the level user need to arrange the dloading images into one image
 
 <img src="assets/images/ss_1.jpg" alt="Game play" width="320" height="430">
 <!-- ![](assets/images/ss_1.jpg alt="" width="500" height="600") -->
