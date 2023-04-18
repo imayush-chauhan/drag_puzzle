@@ -2,9 +2,9 @@
 
 A new Flutter project.
 
-<img src="assets/images/ss_1.jpg" alt="Girl in a jacket" width="320" height="430">
+<img src="assets/images/ss_1.jpg" alt="Game play" width="320" height="430">
 <!-- ![](assets/images/ss_1.jpg alt="" width="500" height="600") -->
-<img src="assets/images/ss_2.jpg" alt="Girl in a jacket" width="320" height="430">
+<img src="assets/images/ss_2.jpg" alt="game play" width="320" height="430">
 <!-- ![](assets/images/ss_2.jpg) -->
 
 ## Getting Started
